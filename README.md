@@ -1,15 +1,10 @@
 # nobreaks-api
 
-```
-$ npm install
-$ node index.js
-```
-
 Create a `nobreaks.conf.json` file in the root of the directory
 
 Use the following structure and plug it in with your API information:
 
-``` 
+```
 {
   "battlenet": {
     "id": "2153",
@@ -18,6 +13,11 @@ Use the following structure and plug it in with your API information:
     "secret": ""
   }
 }
+```
+
+```
+$ npm install
+$ node index.js
 ```
 
 
