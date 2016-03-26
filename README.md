@@ -9,7 +9,7 @@ Create a `nobreaks.conf.json` file in the root of the directory
 
 Use the following structure and plug it in with your API information:
 
-```
+``` 
 {
   "battlenet": {
     "id": "2153",
