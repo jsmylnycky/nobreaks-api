@@ -2,8 +2,10 @@
 
 let express = require('express');
 let helmet = require('helmet');
+let mongoose = require('mongoose');
 let router = express.Router();
 let session = require('express-session');
+
 let app = module.exports = express();
 
 // Security
@@ -17,8 +19,12 @@ app.use(session({
   })
 );
 
+// Routes setup
 app.use('/v1', router)
 app.set('port', (process.env.PORT || 5000));
+
+// Database setup
+mongoose.connect('mongodb://127.0.0.1:27017/nobreaks')
 
 require('./lib/character/index')(router);
 require('./lib/guild/index')(router);
