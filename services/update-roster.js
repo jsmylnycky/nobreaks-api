@@ -30,30 +30,24 @@ function getMembers() {
   fetch(helpers.buildGetUrl(GUILD_API_PATH, query))
   	.then(helpers.parseFetchResponse)
     .then((json) => {
+
+      json.members = json.members.filter(function (el) {
+        return el.rank == 0 || el.rank == 1 || el.rank == 4 || el.rank == 5 ;
+      });
+
       _.forEach(json.members, (member) => {
 
-        let memberObj = {
-          name: member.character.name,
-          class: member.character.class,
-          race: member.character.race,
-          gender: member.character.gender,
-          level: member.character.level,
-          achievementPoints: member.character.achievementPoints,
-          thumbnail: member.character.thumbnail,
-          calcClass: member.character.calcClass,
-          rank: member.rank,
-        };
+        let promises = [];
 
         let promise = new Promise((resolve, reject) => {
           fetch('http://127.0.0.1:5000/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
             .then(helpers.parseFetchResponse)
             .then((json) => {
-              memberObj.items = {
+              member.items = {
                 averageItemLevel: json.items.averageItemLevel,
                 averageItemLevelEquipped: json.items.averageItemLevelEquipped
               };
-              console.log(member);
-              resolve(memberObj);
+              resolve(member);
             }, (error) => {
               reject(error);
             });
@@ -61,16 +55,56 @@ function getMembers() {
 
         promises.push(promise);
 
-        sleep(100);
+        _.forEach(promises, (promise) => {
+
+          promise.then((member) => {
+            let memberObj = {
+              name: member.character.name,
+              class: member.character.class,
+              race: member.character.race,
+              gender: member.character.gender,
+              level: member.character.level,
+              achievementPoints: member.character.achievementPoints,
+              thumbnail: member.character.thumbnail,
+              calcClass: member.character.calcClass,
+              rank: member.rank
+            };
+
+            Character.findOneAndUpdate({name: member.name}, member, {upsert: true}, (err, doc) => {
+              if (err) { throw new Error(err); }
+
+              console.log('Saved ', memberObj.name);
+            });
+          }, (error) => {
+            console.log(error);
+          });
+
+          sleep(500);
+        });
       });
 
-      return Promise.all(promises);
+      //return Promise.all(promises);
     }, (error) => {
       reject(error);
-    })
-    .then((members) => {
-      console.log(members);
-      /*_.forEach(members, (member) => {
+    });
+    //.then((members) => {
+    //  console.log(members);
+      /*
+      let memberObj = {
+        name: member.character.name,
+        class: member.character.class,
+        race: member.character.race,
+        gender: member.character.gender,
+        level: member.character.level,
+        achievementPoints: member.character.achievementPoints,
+        thumbnail: member.character.thumbnail,
+        calcClass: member.character.calcClass,
+        rank: member.rank
+      };
+
+
+
+      _.forEach(members, (member) => {
         console.log(member);
         /*Character.findOneAndUpdate({name: member.name}, member, {upsert: true}, (err, doc) => {
           if (err) { throw new Error(err); }
@@ -79,9 +113,9 @@ function getMembers() {
         });
 
       });*/
-    }, (error) => {
+    /*}, (error) => {
       reject(error);
-    });
+    }); */
 }
 
 
