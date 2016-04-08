@@ -82,40 +82,9 @@ function getMembers() {
           sleep(500);
         });
       });
-
-      //return Promise.all(promises);
     }, (error) => {
       reject(error);
     });
-    //.then((members) => {
-    //  console.log(members);
-      /*
-      let memberObj = {
-        name: member.character.name,
-        class: member.character.class,
-        race: member.character.race,
-        gender: member.character.gender,
-        level: member.character.level,
-        achievementPoints: member.character.achievementPoints,
-        thumbnail: member.character.thumbnail,
-        calcClass: member.character.calcClass,
-        rank: member.rank
-      };
-
-
-
-      _.forEach(members, (member) => {
-        console.log(member);
-        /*Character.findOneAndUpdate({name: member.name}, member, {upsert: true}, (err, doc) => {
-          if (err) { throw new Error(err); }
-
-          console.log('Saved ', memberObj.name);
-        });
-
-      });*/
-    /*}, (error) => {
-      reject(error);
-    }); */
 }
 
 
