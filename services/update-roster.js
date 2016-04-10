@@ -62,9 +62,9 @@ function getMembers() {
               rank: member.rank
             };
 
-            console.log('Updating:', member.name);
+            console.log('Updating:', member.character.name);
 
-            Character.findOneAndUpdate({name: member.name}, member, {upsert: true}, (err, doc) => {
+            Character.findOneAndUpdate({name: member.character.name}, member, {upsert: true}, (err, doc) => {
               if (err) { throw new Error(err); }
             });
           }, (error) => {
