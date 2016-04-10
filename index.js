@@ -1,5 +1,6 @@
 'use strict';
 
+let cors = require('cors');
 let express = require('express');
 let helmet = require('helmet');
 let mongoose = require('mongoose');
@@ -10,6 +11,7 @@ let app = module.exports = express();
 
 // App setup
 app.set('port', (process.env.PORT || 3000));
+app.use(cors());
 
 // Security
 app.set('trust proxy', 1) // trust first proxy
