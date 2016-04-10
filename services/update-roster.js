@@ -26,9 +26,9 @@ function getMembers() {
         return el.rank == 0 || el.rank == 1 || el.rank == 4 || el.rank == 5 ;
       });
 
-      _.forEach(json.members, (member) => {
+      let promises = [];
 
-        let promises = [];
+      _.forEach(json.members, (member) => {
 
         let promise = new Promise((resolve, reject) => {
           fetch('http://127.0.0.1:5000/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
@@ -45,37 +45,37 @@ function getMembers() {
         });
 
         promises.push(promise);
+      });
 
-        _.forEach(promises, (promise) => {
-          console.log('Starting promise');
+      _.forEach(promises, (promise) => {
+        console.log('Starting promise');
 
-          promise.then((member) => {
-            let memberObj = {
-              name: member.character.name,
-              class: member.character.class,
-              race: member.character.race,
-              gender: member.character.gender,
-              level: member.character.level,
-              achievementPoints: member.character.achievementPoints,
-              thumbnail: member.character.thumbnail,
-              calcClass: member.character.calcClass,
-              rank: member.rank
-            };
+        promise.then((member) => {
+          let memberObj = {
+            name: member.character.name,
+            class: member.character.class,
+            race: member.character.race,
+            gender: member.character.gender,
+            level: member.character.level,
+            achievementPoints: member.character.achievementPoints,
+            thumbnail: member.character.thumbnail,
+            calcClass: member.character.calcClass,
+            rank: member.rank
+          };
 
-            console.log('Updating:', member.character.name);
+          console.log('Updating:', member.character.name);
 
-            Character.findOneAndUpdate({name: member.character.name}, member, {upsert: true}, (err, doc) => {
-              if (err) { throw new Error(err); }
-            });
-          }, (error) => {
-            console.log(error);
+          Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}, (err, doc) => {
+            if (err) { throw new Error(err); }
           });
-
-          helpers.sleep(500);
+        }, (error) => {
+          console.log(error);
         });
 
-        console.log('Done');
+        helpers.sleep(500);
       });
+
+      console.log('Done');
     }, (error) => {
       reject(error);
     });
