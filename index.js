@@ -8,6 +8,9 @@ let session = require('express-session');
 
 let app = module.exports = express();
 
+// App setup
+app.set('port', (process.env.PORT || 3000));
+
 // Security
 app.set('trust proxy', 1) // trust first proxy
 
