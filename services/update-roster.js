@@ -47,6 +47,7 @@ function getMembers() {
         promises.push(promise);
 
         _.forEach(promises, (promise) => {
+          console.log('Starting promise');
 
           promise.then((member) => {
             let memberObj = {
@@ -61,6 +62,8 @@ function getMembers() {
               rank: member.rank
             };
 
+            console.log('Updating:', member.name);
+
             Character.findOneAndUpdate({name: member.name}, member, {upsert: true}, (err, doc) => {
               if (err) { throw new Error(err); }
             });
@@ -70,6 +73,8 @@ function getMembers() {
 
           helpers.sleep(500);
         });
+
+        console.log('Done');
       });
     }, (error) => {
       reject(error);
