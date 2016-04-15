@@ -60,10 +60,11 @@ function getMembers() {
             achievementPoints: member.character.achievementPoints,
             thumbnail: member.character.thumbnail,
             calcClass: member.character.calcClass,
-            rank: member.rank
+            rank: member.rank,
+            items: member.items
           };
 
-          console.log('Updating:', member.character.name);
+          console.log('Updating: %j', member);
 
           Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}, (err, doc) => {
             if (err) { throw new Error(err); }
