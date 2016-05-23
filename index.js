@@ -10,8 +10,8 @@ let session = require('express-session');
 let app = module.exports = express();
 
 // App setup
-app.set('port', (process.env.PORT || 3000));
 app.use(cors());
+app.set('port', (process.env.PORT || 5001));
 
 // Security
 app.set('trust proxy', 1) // trust first proxy
@@ -26,7 +26,6 @@ app.use(session({
 
 // Routes setup
 app.use('/v1', router)
-app.set('port', (process.env.PORT || 5000));
 
 // Database setup
 mongoose.connect('mongodb://127.0.0.1:27017/nobreaks')
