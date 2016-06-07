@@ -4,6 +4,7 @@ let app = require('../index');
 let Character = require('../lib/character/model');
 let helpers = require('../lib/helpers');
 let fetch = require('node-fetch');
+let moment = require('moment');
 let Promise = require('es6-promise').Promise;
 let _ = require('lodash');
 
@@ -22,8 +23,8 @@ function getMembers() {
   	.then(helpers.parseFetchResponse)
     .then((json) => {
 
-      json.members = json.members.filter(function (el) {
-        return el.rank == 0 || el.rank == 1 || el.rank == 4 || el.rank == 5 ;
+      json.members = json.members.filter((el) => {
+        return el.rank === 0 || el.rank === 1 || el.rank === 4 || el.rank === 5;
       });
 
       let promises = [];
@@ -31,7 +32,7 @@ function getMembers() {
       _.forEach(json.members, (member) => {
 
         let promise = new Promise((resolve, reject) => {
-          fetch('http://127.0.0.1:5000/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
+          fetch('http://127.0.0.1:5002/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
             .then(helpers.parseFetchResponse)
             .then((json) => {
               member.items = {
@@ -47,10 +48,11 @@ function getMembers() {
         promises.push(promise);
       });
 
-      _.forEach(promises, (promise) => {
-        console.log('Starting promise');
+      Promise.all(promises).then((members) => {
+        let dbPromises = []
 
-        promise.then((member) => {
+        // Update members
+        _.forEach(members, (member, idx) => {
           let memberObj = {
             name: member.character.name,
             class: member.character.class,
@@ -64,21 +66,31 @@ function getMembers() {
             items: member.items
           };
 
-          console.log('Updating: %j', member);
-
-          Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}, (err, doc) => {
-            if (err) { throw new Error(err); }
-          });
-        }, (error) => {
-          console.log(error);
+          dbPromises.push(Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}).exec());
         });
 
-        helpers.sleep(500);
-      });
+        Promise.all(dbPromises)
+          .then(() => {
+            // Remove members who did not get updated...this means they're no longer a raider
+            Character.remove({'updatedAt': { $lt: moment().startOf('day') }})
+              .exec((err, oldChars) => {
+                if (err) { throw new Error(err); }
 
-      console.log('Done');
+                process.exit(0);
+              });
+
+          }, (error) => {
+            console.log(error);
+            process.exit(-1);
+          });
+
+      }, (error) => {
+        console.log(error);
+        process.exit(-1);
+      });
     }, (error) => {
       reject(error);
+      process.exit(-1);
     });
 }
 

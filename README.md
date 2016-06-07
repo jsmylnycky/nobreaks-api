@@ -23,4 +23,4 @@ $ node index.js
 
 You can now open a browser and go to any of the available endpoints.
 
-For example: `http://localhost:5000/v1/guild/members`
+For example: `http://localhost:5002/v1/guild/members`
