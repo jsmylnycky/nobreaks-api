@@ -19,9 +19,6 @@ function getMembers() {
   let raiders = [];
   let members = [];
 
-  // Remove all
-  Character.remove().exec();
-
   fetch(helpers.buildGetUrl(GUILD_API_PATH, query))
   	.then(helpers.parseFetchResponse)
     .then((json) => {
