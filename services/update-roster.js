@@ -6,11 +6,12 @@ let helpers = require('../lib/helpers');
 let fetch = require('node-fetch');
 let moment = require('moment');
 let Promise = require('es6-promise').Promise;
+let guildService = require('../lib/guild/service');
 let _ = require('lodash');
 
 const GUILD_API_PATH = '/wow/guild/Thrall/No%20Breaks';
 
-function getMembers() {
+function updateRoster() {
   let query = {
     fields: 'members',
     locale: 'en_US'
@@ -29,27 +30,32 @@ function getMembers() {
 
       let promises = [];
 
+      promises.push(guildService.getGuild('No Breaks'));
+
       _.forEach(json.members, (member) => {
 
         let promise = new Promise((resolve, reject) => {
-          fetch('http://127.0.0.1:5002/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
-            .then(helpers.parseFetchResponse)
+        /*  fetch('http://127.0.0.1:5002/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
+            .then(helpers.parseFetchResponse)1
             .then((json) => {
               member.items = {
                 averageItemLevel: json.items.averageItemLevel,
                 averageItemLevelEquipped: json.items.averageItemLevelEquipped
-              };
+              };*/
               resolve(member);
-            }, (error) => {
+          /*  }, (error) => {
               reject(error);
-            });
+            }); */
         });
 
         promises.push(promise);
       });
 
       Promise.all(promises).then((members) => {
+        let guildDetails = members[0];
         let dbPromises = []
+
+        members.shift();
 
         // Update members
         _.forEach(members, (member, idx) => {
@@ -63,7 +69,8 @@ function getMembers() {
             thumbnail: member.character.thumbnail,
             calcClass: member.character.calcClass,
             rank: member.rank,
-            items: member.items
+            items: member.items,
+            guildId: guildDetails._id
           };
 
           dbPromises.push(Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}).exec());
@@ -95,4 +102,4 @@ function getMembers() {
 }
 
 
-getMembers();
+updateRoster();
