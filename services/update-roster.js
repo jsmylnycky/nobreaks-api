@@ -6,11 +6,13 @@ let helpers = require('../lib/helpers');
 let fetch = require('node-fetch');
 let moment = require('moment');
 let Promise = require('es6-promise').Promise;
+let guildService = require('../lib/guild/service');
 let _ = require('lodash');
 
 const GUILD_API_PATH = '/wow/guild/Thrall/No%20Breaks';
+const CHARACTER_API_PATH = '/wow/character';
 
-function getMembers() {
+function updateRoster() {
   let query = {
     fields: 'members',
     locale: 'en_US'
@@ -23,24 +25,35 @@ function getMembers() {
   	.then(helpers.parseFetchResponse)
     .then((json) => {
 
-      json.members = json.members.filter((el) => {
-        return el.rank === 0 || el.rank === 1 || el.rank === 4 || el.rank === 5;
-      });
+      //json.members = json.members.filter((el) => {
+      //  return el.rank === 0 || el.rank === 1 || el.rank === 4 || el.rank === 5;
+      //});
 
       let promises = [];
 
-      _.forEach(json.members, (member) => {
+      promises.push(guildService.getGuild('No Breaks'));
+
+      _.forEach(json.members, (member, idx) => {
 
         let promise = new Promise((resolve, reject) => {
-          fetch('http://127.0.0.1:5002/v1/character/' + member.character.realm + '/' + encodeURIComponent(member.character.name) + '/items')
-            .then(helpers.parseFetchResponse)
+          let query = {
+            locale: 'en_US',
+            fields: 'items'
+          };
+
+          fetch(helpers.buildGetUrl(CHARACTER_API_PATH + '/' + member.character.realm + '/' + encodeURIComponent(member.character.name), query))
+          	.then(helpers.parseFetchResponse)
             .then((json) => {
-              member.items = {
-                averageItemLevel: json.items.averageItemLevel,
-                averageItemLevelEquipped: json.items.averageItemLevelEquipped
-              };
+
+              if(json.items) {
+                member.items = {
+                  averageItemLevel: json.items.averageItemLevel,
+                  averageItemLevelEquipped: json.items.averageItemLevelEquipped
+                };
+              }
+
               resolve(member);
-            }, (error) => {
+          	}, (error) => {
               reject(error);
             });
         });
@@ -49,7 +62,10 @@ function getMembers() {
       });
 
       Promise.all(promises).then((members) => {
+        let guildDetails = members[0];
         let dbPromises = []
+
+        members.shift(); // Delete guild details promise
 
         // Update members
         _.forEach(members, (member, idx) => {
@@ -63,14 +79,22 @@ function getMembers() {
             thumbnail: member.character.thumbnail,
             calcClass: member.character.calcClass,
             rank: member.rank,
-            items: member.items
+            items: member.items,
+            guildId: guildDetails._id
           };
 
-          dbPromises.push(Character.findOneAndUpdate({name: member.character.name}, memberObj, {upsert: true}).exec());
+          dbPromises.push(
+            Character.findOneAndUpdate(
+              {name: { $regex: new RegExp('^' + member.character.name + '$', 'i') }},
+              memberObj,
+              {upsert: true})
+            .exec()
+          );
         });
 
         Promise.all(dbPromises)
           .then(() => {
+
             // Remove members who did not get updated...this means they're no longer a raider
             Character.remove({'updatedAt': { $lt: moment().startOf('day') }})
               .exec((err, oldChars) => {
@@ -95,4 +119,4 @@ function getMembers() {
 }
 
 
-getMembers();
+updateRoster();
