@@ -37,8 +37,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/nobreaks')
 mongoose.Promise = global.Promise;
 
 require('./lib/character/index')(router);
-require('./lib/guild/index')(router);
 require('./lib/epgp/index')(router);
+require('./lib/guild/index')(router);
+require('./lib/item/index')(router);
 
 app.listen(app.get('port'), () => {
   console.log('No Breaks API is running on port', app.get('port'));
