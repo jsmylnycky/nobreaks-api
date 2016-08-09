@@ -36,6 +36,12 @@ app.use('/v1', router)
 mongoose.connect('mongodb://127.0.0.1:27017/nobreaks')
 mongoose.Promise = global.Promise;
 
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500).json({error: {message: err.message}});
+});
+
 require('./lib/character/index')(router);
 require('./lib/epgp/index')(router);
 require('./lib/guild/index')(router);
