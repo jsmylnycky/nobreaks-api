@@ -7,6 +7,7 @@ let mongoose = require('mongoose');
 let router = express.Router();
 let session = require('express-session');
 let bodyParser = require('body-parser');
+var serveStatic = require('serve-static')
 
 let app = module.exports = express();
 
@@ -43,7 +44,9 @@ app.use(function(err, req, res, next) {
 });
 
 // CDN directory
-app.use('/cdn', express.static('cdn'));
+app.use(serveStatic(__dirname + '/static', {
+  'index': false
+}));
 
 require('./lib/character/index')(router);
 require('./lib/epgp/index')(router);
