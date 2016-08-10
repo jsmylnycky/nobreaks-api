@@ -42,6 +42,9 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500).json({error: {message: err.message}});
 });
 
+// CDN directory
+app.use('/cdn', express.static('cdn'));
+
 require('./lib/character/index')(router);
 require('./lib/epgp/index')(router);
 require('./lib/guild/index')(router);
