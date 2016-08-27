@@ -66,7 +66,7 @@ require('./lib/epgp/index')(router);
 require('./lib/guild/index')(router);
 require('./lib/item/index')(router);
 
-if (app.get('env') === 'development') {
+if (app.get('env') === 'local') {
   let fs = require('fs');
   let https = require('https');
 
