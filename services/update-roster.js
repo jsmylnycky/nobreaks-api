@@ -4,7 +4,7 @@ let app = require('../index');
 let Character = require('../lib/character/model');
 let helpers = require('../lib/helpers');
 let fetch = require('node-fetch');
-let moment = require('moment');
+let moment = require('moment-timezone');
 let guildService = require('../lib/guild/service');
 let _ = require('lodash');
 
