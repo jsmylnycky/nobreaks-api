@@ -25,6 +25,6 @@
     "passport": "^0.3.2",
     "passport-bnet": "^1.2.1",
     "serve-static": "^1.11.1",
-    "wow-itemstring": "^1.0.1"
+    "wow-itemstring": "1.0.6"
   }
 }
