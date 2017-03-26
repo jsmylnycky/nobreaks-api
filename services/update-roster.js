@@ -76,10 +76,15 @@ function updateRoster() {
                   if (lookupCharacter) {
                     console.log('[' + idx++ + '/' + guildMembers.length + '] Adding item level stats to', lookupCharacter.character.name);
 
-                    lookupCharacter.character.items = {
-                      averageItemLevel: character.items.averageItemLevel,
-                      averageItemLevelEquipped: character.items.averageItemLevelEquipped
-                    };
+                    if(character.items) {
+
+                      lookupCharacter.character.items = {
+                        averageItemLevel: character.items.averageItemLevel,
+                        averageItemLevelEquipped: character.items.averageItemLevelEquipped
+                      }
+                    } else {
+                      console.log(`[${lookupCharacter.character.name}] There was an issue updating items`)
+                    }
                   }
 
                   helpers.sleep(200);
