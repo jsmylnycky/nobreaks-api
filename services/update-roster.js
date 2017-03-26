@@ -83,7 +83,7 @@ function updateRoster() {
                         averageItemLevelEquipped: character.items.averageItemLevelEquipped
                       }
                     } else {
-                      console.log(`[${lookupCharacter.character.name}] There was an issue updating items`)
+                      console.log(`[ERROR] There was an issue updating items to ${lookupCharacter.character.name}`)
                     }
                   }
 
