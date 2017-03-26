@@ -50,10 +50,11 @@ function updateRoster() {
         guildMembers.reduce(function(curr, next) {
            return curr.then(function() {
              return new Promise((resolve, reject) => {
-
                fetch(
-                 helpers.buildGetUrl(CHARACTER_API_PATH + '/' + encodeURIComponent(next.character.realm) + '/' + encodeURIComponent(next.character.name),
-                 itemQuery)
+                 helpers.buildGetUrl(
+                   `${CHARACTER_API_PATH}/${encodeURIComponent(next.character.realm || next.character.guildRealm || GUILD_REALM)}/${encodeURIComponent(next.character.name)}`,
+                   itemQuery
+                )
                )
                 .then(helpers.parseFetchResponse)
                 .then((character) => {
