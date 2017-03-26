@@ -1,6 +1,6 @@
 {
   "name": "nobreaks-api",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "API for nobreaksguild.com",
   "main": "index.js",
   "scripts": {
