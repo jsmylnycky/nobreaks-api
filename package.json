@@ -21,7 +21,7 @@
     "lodash": "^4.6.1",
     "moment-timezone": "^0.5.5",
     "mongoose": "^4.4.12",
-    "node-fetch": "^1.4.1",
+    "node-fetch": "^1.7.1",
     "passport": "^0.3.2",
     "passport-bnet": "^1.2.1",
     "serve-static": "^1.11.1",
